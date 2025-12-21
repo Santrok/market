@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Form</h1>
+{% if errors %}
+{% for error in errors %}
+<p style="color: red;">{{ error }}</p>
+{% endfor %}
+{% endif %}
+<form action="" method="POST" style="display: flex; flex-direction: column; gap: 5px; max-width: 200px;">
+    {% csrf_token %}
+    <input type="text" name="first_name" placeholder="Имя" maxlength="50">
+    <input type="text" name="last_name" placeholder="Фамилия" >
+    <input type="number" name="age" placeholder="Возраст" >
+    <button>Отправить</button>
+</form>
+
+<div class="">
+    {% for author in authors %}
+    {% if forloop.counter == 1 %}
+    <p style="color: #28a745">{{ author.first_name }} {{author.last_name}} {{author.age}}</p>
+    {% else %}
+    <p>{{ author.first_name }} {{author.last_name}} {{author.age}}</p>
+    {% endif %}
+    {% endfor %}
+</div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>{{ product.title }} — MarketPlace</title>
+    <title>MarketPlace — товары</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
+    {% block css %}
+    {% endblock css %}
+</head>
+<body>
+
+<header class="site-header">
+    <div class="header-left">
+        <button id="burgerBtn" class="burger" aria-label="Открыть категории">
+            <span></span><span></span><span></span>
+        </button>
+        <a class="site-logo" href="#">MarketPlace</a>
+    </div>
+    <div class="header-center">
+    <form id="headerSearch" class="search-wrap" action="#" method="get" role="search">
+      <label for="searchInput" class="visually-hidden">Поиск товаров</label>
+      <input id="searchInput" name="q" type="search" placeholder="Поиск товаров, брендов..." aria-label="Поиск" value="{{ request.GET.q|default:'' }}">
+      <button id="searchBtn" type="submit" aria-label="Найти">🔍</button>
+    </form>
+  </div>
+    <div class="header-right">
+    {% if user.is_authenticated %}
+      <a class="icon-btn" href="#" aria-label="Личный кабинет">Привет, {{ user.first_name|default:user.username }}</a>
+    {% else %}
+      <a id="loginBtn" class="icon-btn" href="#" aria-label="Вход в личный кабинет">Вход</a>
+    {% endif %}
+
+    <a id="cartBtn" class="icon-btn" href="#" aria-label="Корзина товаров">
+      🛒
+      <span id="cartCount" class="cart-count" aria-live="polite">{{ cart_count|default:0 }}</span>
+    </a>
+  </div>
+</header>
+<nav id="sideCategories" class="side-categories" aria-hidden="true">
+    <div class="side-header">
+        <h3>Категории</h3>
+        <button id="closeCategories" aria-label="Закрыть">✕</button>
+    </div>
+    <ul>
+        <li><a href="#" data-cat="all">Все</a></li>
+        {% for categoria in categories %}
+        <li><a href="{% url 'category' categoria.id %}">{{categoria}}</a></li>
+        {% endfor %}
+    </ul>
+</nav>
+{% block main %}
+<main class="main">
+    <section class="products-section">
+        <h2 class="visually-hidden">Список товаров</h2>
+        <div id="productsGrid" class="products-grid" aria-live="polite">
+            {% for tovar in tovars %}
+            <article class="product-card">
+                <img class="product-image" alt="{{ tovar.title }}"
+                     src="{{ tovar.img.url }}">
+                <div class="product-info">
+                    <h3 class="product-title">{{ tovar.title }}</h3>
+                    <p class="product-price">{{ tovar.price }}</p>
+                    <div class="product-actions">
+                        <button class="add-cart">Добавить в корзину</button>
+                        <a href="{% url 'product' tovar.id %}" class="view-btn">Подробнее</a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock main %}
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <a class="site-logo" href="{% url 'home' %}">
+        <img src="{% static 'img/logo.svg' %}" alt="MarketPlace" width="120" height="24">
+      </a>
+      <p class="muted">Маркетплейс товаров — быстрая доставка и проверенные продавцы.</p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Покупателям</h4>
+      <ul>
+        <li><a href="#">Доставка</a></li>
+        <li><a href="#">Возврат</a></li>
+        <li><a href="#">Вопросы и ответы</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>О нас</h4>
+      <ul>
+        <li><a href="#">О компании</a></li>
+        <li><a href="#">Контакты</a></li>
+        <li><a href="#">Условия использования</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Следите за нами</h4>
+      <ul class="social">
+        <li><a href="#" rel="noopener">Telegram</a></li>
+        <li><a href="#" rel="noopener">VK</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <small>© {% now "Y" %} MarketPlace. Все права защищены.</small>
+  </div>
+</footer>
+<template id="productTemplate">
+    <article class="product-card">
+        <img class="product-image" alt=""/>
+        <div class="product-info">
+            <h3 class="product-title"></h3>
+            <p class="product-price"></p>
+            <div class="product-actions">
+                <button class="add-cart">Добавить в корзину</button>
+                <button class="view-btn">Подробнее</button>
+            </div>
+        </div>
+    </article>
+</template>
+
+<script src="{% static 'js/script.js'%}" defer></script>
+{% block js %}
+{% endblock js %}
+</body>
+</html>

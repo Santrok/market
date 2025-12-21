@@ -1,0 +1,140 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/product_detail.css' %}"/>
+{% endblock css %}
+
+
+{% block main %}
+<main class="product-page" id="productPage">
+    <nav class="breadcrumbs" aria-label="Хлебные крошки">
+      <a href="{% url 'home' %}">Главная</a> ›
+      <a href="{% url 'category' product.kategoria.pk %}">{{ product.kategoria.title }}</a> ›
+      <span aria-current="page">{{ product.title }}</span>
+    </nav>
+
+    <section class="product-detail" aria-labelledby="productTitle">
+      <!-- Slider -->
+      <div class="gallery">
+        <div class="slider" id="slider" aria-roledescription="carousel">
+          <div class="slider-track" id="sliderTrack">
+            {% if product.img %}
+              <div class="slide" data-src="{{ product.img.url }}">
+                <img src="{{ product.img.url }}" alt="{{ product.title }}" loading="lazy">
+              </div>
+            {% endif %}
+            {% for img in product.images.all %}
+              <div class="slide" data-src="{{ img.image.url }}">
+                <img src="{{ img.image.url }}" alt="{{ img.alt|default:product.title }}" loading="lazy">
+              </div>
+            {% endfor %}
+          </div>
+
+          <button class="slider-btn prev" id="sliderPrev" aria-label="Предыдущее">‹</button>
+          <button class="slider-btn next" id="sliderNext" aria-label="Следующее">›</button>
+
+          <div class="slider-dots" id="sliderDots" role="tablist" aria-label="Навигация слайдов"></div>
+
+          <button class="slider-play" id="sliderPlay" aria-label="Пауза автопрокрутки">⏸</button>
+        </div>
+
+        <div class="thumbs" id="thumbs" role="tablist" aria-label="Миниатюры">
+          {% if product.img %}
+            <button class="thumb active" data-index="0" aria-label="Миниатюра 1">
+              <img src="{{ product.img.url }}" alt="{{ product.title }}" loading="lazy">
+            </button>
+          {% endif %}
+          {% for img in product.images.all %}
+            <button class="thumb" data-index="{{ forloop.counter0|add:1 }}" aria-label="Миниатюра {{ forloop.counter|add:1 }}">
+              <img src="{{ img.image.url }}" alt="{{ img.alt|default:product.title }}" loading="lazy">
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div class="meta">
+        <h1 id="productTitle">{{ product.title }}</h1>
+
+        <div class="price-block">
+          <div class="price" id="price">{{ product.price|floatformat:2 }} ₽</div>
+          <div class="availability in-stock">{% if product.pk %}В наличии{% else %}Нет в наличии{% endif %}</div>
+        </div>
+
+        <div class="short-desc">
+          <p>{{ product.opisanie|truncatechars:200 }}</p>
+        </div>
+
+        <form id="addToCartForm" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="product_id" value="{{ product.pk }}">
+          <label for="qty" class="visually-hidden">Количество</label>
+          <div class="qty-row">
+            <button type="button" id="qtyMinus" aria-label="Уменьшить количество">−</button>
+            <input id="qty" name="quantity" type="number" min="1" value="1" inputmode="numeric" />
+            <button type="button" id="qtyPlus" aria-label="Увеличить количество">+</button>
+          </div>
+
+          <div class="actions">
+            <button id="addToCartBtn" class="add-cart" type="submit" data-product="{{ product.pk }}">Добавить в корзину</button>
+            <a class="buy-now" href="#">Купить сейчас</a>
+          </div>
+        </form>
+
+        <details class="product-specs">
+          <summary>Полное описание</summary>
+          <div class="specs-body">{{ product.opisanie|linebreaks }}</div>
+        </details>
+
+        <div class="share">
+          <span>Поделиться</span>
+          <a href="https://t.me/share/url?url={{ request.build_absolute_uri|urlencode }}&text={{ product.title|urlencode }}" target="_blank" rel="noopener">Telegram</a>
+          <a href="https://vk.com/share.php?url={{ request.build_absolute_uri|urlencode }}" target="_blank" rel="noopener">VK</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="related-products" aria-labelledby="relatedTitle">
+      <h2 id="relatedTitle">Похожие товары</h2>
+      <div class="related-grid">
+        {% for rp in related_products %}
+          <article class="related-card">
+            <a href="{% url 'product:detail' rp.pk %}">
+              {% if rp.img %}
+                <img src="{{ rp.img.url }}" alt="{{ rp.title }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'img/placeholder.png' %}" alt="{{ rp.title }}" loading="lazy">
+              {% endif %}
+              <div class="related-title">{{ rp.title }}</div>
+              <div class="related-price">{{ rp.price|floatformat:2 }} ₽</div>
+            </a>
+          </article>
+        {% empty %}
+          <p>Похожие товары отсутствуют.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+{% endblock main %}
+
+{% block js %}
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": "{{ product.title|escapejs }}",
+        "image": "{{ product.img.url}}",
+        "description": "{{ product.opisanie|striptags|truncatechars:200|escapejs }}",
+        "offers": {
+            "@type": "Offer",
+            "url": "{{ request.build_absolute_uri }}",
+            "priceCurrency": "RUB",
+            "price": "{{ product.price }}",
+            "availability": "http://schema.org/{% if product.pk and product %}InStock{% else %}OutOfStock{% endif %}"
+        }
+    }
+</script>
+<script src="{% static 'js/product_detail.js' %}" defer></script>
+{% endblock js %}
+
