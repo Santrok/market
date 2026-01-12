@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="auth-container">
+  <h2 class="auth-title">Вход</h2>
+  <form action="" method="POST" class="auth-form">
+      {% csrf_token %}
+      <table>
+          {{ form.as_table }}
+      </table>
+      <button type="submit" class="auth-btn">Вход</button>
+  </form>
+  <div class="auth-link">
+    Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a>
+  </div>
+</div>
+{% endblock main %}
